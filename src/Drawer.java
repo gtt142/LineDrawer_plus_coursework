@@ -27,6 +27,7 @@ public class Drawer extends Application {
     private Double y0 = 0.0;
     private Double x1 = 0.0;
     private Double y1 = 0.0;
+    Boolean hoveredLine = false;
     private Lines lines = new Lines();
 
     private final FileChooser fileChooser = new FileChooser();
@@ -219,6 +220,17 @@ public class Drawer extends Application {
                 x0 = event.getX();
                 y0 = event.getY();
             }
+        });
+
+        draftCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+//            if (event.getButton() == MouseButton.PRIMARY) {
+//                x0 = event.getX();
+//                y0 = event.getY();
+//                gc.setStroke(Config.LINE_COLOR);
+//                gc.setLineWidth(Config.LINEWIDTH);
+//                gc.strokeLine(x0,y0,x0,y0);
+//                lines.addLine(new Line(x0,y0,x0,y0));
+//            }
             if(event.getButton() == MouseButton.SECONDARY) {
                 Line line = lines.findNearLineByCoordinate(event.getX(), event.getY());
                 if (line != null) {
@@ -255,6 +267,21 @@ public class Drawer extends Application {
                 gc.strokeLine(x0,y0,x1,y1);
                 gc2.clearRect(0, 0, draftCanvas.getWidth(), draftCanvas.getHeight());
                 lines.addLine(new Line(x0,y0,x1,y1));
+            }
+        });
+
+        draftCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, event -> {
+            Line line = lines.findNearLineByCoordinate(event.getX(), event.getY());
+            if (hoveredLine) {
+                lines.drawLinesOnCanvas(canvas);
+            }
+            if (line != null) {
+                hoveredLine = true;
+                gc.setStroke(Config.HOVER_LINE_COLOR);
+                gc.setLineWidth(Config.LINEWIDTH);
+                gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
+            } else {
+                hoveredLine = false;
             }
         });
     }
