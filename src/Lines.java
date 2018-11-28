@@ -48,6 +48,10 @@ public class Lines {
         }
     }
 
+    public List<Line> getLines() {
+        return lines;
+    }
+
     public void addLine (Line line) {
         if (this.lines == null) {
             this.lines = new ArrayList<>();

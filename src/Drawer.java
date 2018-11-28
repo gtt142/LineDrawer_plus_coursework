@@ -280,6 +280,16 @@ public class Drawer extends Application {
                 gc.setStroke(Config.HOVER_LINE_COLOR);
                 gc.setLineWidth(Config.LINEWIDTH);
                 gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
+
+                // TODO find intersection
+                for (Line ln: lines.getLines()) {
+                    if (line.checkIntersection(ln) && ln != line) {
+                        gc.setStroke(Config.INTERSECTION_COLOR);
+                        gc.setLineWidth(Config.LINEWIDTH);
+                        gc.strokeLine(ln.getX0(), ln.getY0(), ln.getX1(), ln.getY1());
+                    }
+                }
+
             } else {
                 hoveredLine = false;
             }
