@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -27,7 +28,7 @@ public class Drawer extends Application {
     private Double y0 = 0.0;
     private Double x1 = 0.0;
     private Double y1 = 0.0;
-    Boolean hoveredLine = false;
+    private Boolean hoveredLine = false;
     private Lines lines = new Lines();
 
     private final FileChooser fileChooser = new FileChooser();
@@ -194,15 +195,20 @@ public class Drawer extends Application {
     private void solveTask() {
         ResultWindow resultWindow = new ResultWindow();
         resultWindow.init();
-//        Thread thread1 = new Thread(() -> {
-//            for (Double i = 0.0; i < 1e6; i=i+1) {
-//                System.out.println(i.toString());
-//            }
-//            resultWindow.setResult(75.0);
-//        });
-//        thread1.start();
-        resultWindow.setOnClick(75.0);
-//        resultWindow.setResult(75.0);
+
+        Thread taskThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Task task = new Task(lines);
+                Integer result = task.solve();
+                Platform.runLater(() -> {
+                    resultWindow.setResult(result);
+                });
+            }
+
+        });
+
+        taskThread.start();
     }
 
     private void keyHandler (KeyEvent event) {
@@ -277,11 +283,7 @@ public class Drawer extends Application {
             }
             if (line != null) {
                 hoveredLine = true;
-                gc.setStroke(Config.HOVER_LINE_COLOR);
-                gc.setLineWidth(Config.LINEWIDTH);
-                gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
 
-                // TODO find intersection
                 for (Line ln: lines.getLines()) {
                     if (line.checkIntersection(ln) && ln != line) {
                         gc.setStroke(Config.INTERSECTION_COLOR);
@@ -290,6 +292,9 @@ public class Drawer extends Application {
                     }
                 }
 
+                gc.setStroke(Config.HOVER_LINE_COLOR);
+                gc.setLineWidth(Config.LINEWIDTH);
+                gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
             } else {
                 hoveredLine = false;
             }

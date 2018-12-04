@@ -1,12 +1,10 @@
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -30,7 +28,7 @@ public class ResultWindow {
         window.show();
     }
 
-    public void setResult(Double result) {
+    public void setResult(Integer result) {
         VBox vBox = new VBox(20);
         Text text = new Text("");
         text.setText("Result: "+result.toString());
@@ -46,11 +44,4 @@ public class ResultWindow {
         window.show();
     }
 
-    //  remove
-    public void setOnClick(Double res) {
-        window.setOnCloseRequest(event -> {
-            event.consume();
-            setResult(res);
-        });
-    }
 }
