@@ -1,5 +1,7 @@
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -23,6 +25,12 @@ import java.util.Objects;
 
 
 public class Drawer extends Application {
+
+    private Double windowMinHeight = Config.WINDOW_MIN_HEIGHT;
+    private Double windowMinWidth = Config.WINDOW_MIN_WIDTH;
+    private Stage mainStage;
+    private Double defaultCanvasWidth = Config.WINDOW_MIN_WIDTH;
+    private Double defaultCanvasHeight = Config.WINDOW_MIN_HEIGHT - Config.ICONS_HEIGHT - Config.WINDOW_HEIGHT_DELTA;
 
     private Double x0 = 0.0;
     private Double y0 = 0.0;
@@ -102,10 +110,14 @@ public class Drawer extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        mainStage = primaryStage;
         primaryStage.setTitle(Config.MAIN_WINDOW_NAME);
         Group root = new Group();
-        Canvas canvas = new Canvas(Config.CANVAS_WIDTH, Config.CANVAS_HEIGHT);
-        Canvas draftCanvas = new Canvas(Config.CANVAS_WIDTH, Config.CANVAS_HEIGHT);
+
+        Double canvasWidth = defaultCanvasWidth;
+        Double canvasHeight = defaultCanvasHeight;
+        Canvas canvas = new Canvas(canvasWidth, canvasHeight);
+        Canvas draftCanvas = new Canvas(canvasWidth, canvasHeight);
 
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("MyFormat", "*.mf"),
@@ -145,15 +157,22 @@ public class Drawer extends Application {
                     ErrorWindow.display(e.getMessage());
                     return;
                 }
+                resizeOnOpenFile(canvas, draftCanvas);
                 lines.drawLinesOnCanvas(canvas);
-
             }
         });
         buttonClearAllView.setFitHeight(Config.ICONS_HEIGHT);
         buttonClearAllView.setFitWidth(Config.ICONS_HEIGHT);
         Button clearAllButton = new Button("", buttonClearAllView);
         clearAllButton.setTooltip(new Tooltip("Clear all"));
-        clearAllButton.setOnAction(event -> lines.clearAll(canvas));
+        clearAllButton.setOnAction(event -> {
+            lines.clearAll(canvas);
+            windowMinHeight = Config.WINDOW_MIN_HEIGHT;
+            windowMinWidth = Config.WINDOW_MIN_WIDTH;
+            primaryStage.setMinWidth(windowMinWidth);
+            primaryStage.setMinHeight(windowMinHeight);
+
+        });
         buttonInfoView.setFitHeight(Config.ICONS_HEIGHT);
         buttonInfoView.setFitWidth(Config.ICONS_HEIGHT);
         Button infoButton = new Button("", buttonInfoView);
@@ -186,10 +205,30 @@ public class Drawer extends Application {
         borderPane.setCenter(pane);
         root.getChildren().add(borderPane);
         root.setOnKeyPressed(this::keyHandler);
-        primaryStage.setScene(new Scene(root, Color.WHITESMOKE));
-        primaryStage.setResizable(false);
+        Scene scene = new Scene(root, Color.WHITESMOKE);
+        primaryStage.setScene(scene);
+
+        primaryStage.setResizable(true);
+        primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number number2) {
+                canvas.setWidth(number2.doubleValue());
+                draftCanvas.setWidth(number2.doubleValue());
+            }
+        });
+        primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number number2) {
+                canvas.setHeight(number2.doubleValue() - Config.ICONS_HEIGHT - Config.WINDOW_HEIGHT_DELTA - 37.0);
+                draftCanvas.setHeight(number2.doubleValue() - Config.ICONS_HEIGHT - Config.WINDOW_HEIGHT_DELTA - 37.0);
+            }
+        });
+
+        primaryStage.setMinHeight(windowMinHeight);
+        primaryStage.setMinWidth(windowMinWidth);
         primaryStage.getIcons().add(mainIcon);
         primaryStage.show();
+
     }
 
     private void solveTask() {
@@ -211,6 +250,33 @@ public class Drawer extends Application {
         taskThread.start();
     }
 
+    private void resizeOnOpenFile(Canvas canvas, Canvas draftCanvas) {
+        Double maxX = 0.0;
+        Double maxY = 0.0;
+        for (Line line: lines.getLines()) {
+            if(line.getX0() > maxX)
+                maxX = line.getX0();
+            if(line.getX1() > maxX)
+                maxX = line.getX1();
+            if(line.getY0() > maxY)
+                maxY = line.getY0();
+            if(line.getY1() > maxY)
+                maxY = line.getY1();
+        }
+
+        if(maxX > windowMinWidth) {
+            windowMinWidth = maxX;
+            canvas.setWidth(windowMinWidth);
+            draftCanvas.setWidth(windowMinWidth);
+            mainStage.setMinWidth(windowMinWidth);
+        }
+
+        if(maxY > windowMinHeight - Config.WINDOW_HEIGHT_DELTA - Config.ICONS_HEIGHT) {
+            windowMinHeight = maxY + Config.ICONS_HEIGHT + Config.WINDOW_HEIGHT_DELTA;
+            mainStage.setMinHeight(windowMinHeight);
+        }
+    }
+
     private void keyHandler (KeyEvent event) {
         if(event.getCode() == KeyCode.F1) {
             InfoWindow.display();
@@ -229,14 +295,6 @@ public class Drawer extends Application {
         });
 
         draftCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-//            if (event.getButton() == MouseButton.PRIMARY) {
-//                x0 = event.getX();
-//                y0 = event.getY();
-//                gc.setStroke(Config.LINE_COLOR);
-//                gc.setLineWidth(Config.LINEWIDTH);
-//                gc.strokeLine(x0,y0,x0,y0);
-//                lines.addLine(new Line(x0,y0,x0,y0));
-//            }
             if(event.getButton() == MouseButton.SECONDARY) {
                 Line line = lines.findNearLineByCoordinate(event.getX(), event.getY());
                 if (line != null) {
@@ -273,6 +331,16 @@ public class Drawer extends Application {
                 gc.strokeLine(x0,y0,x1,y1);
                 gc2.clearRect(0, 0, draftCanvas.getWidth(), draftCanvas.getHeight());
                 lines.addLine(new Line(x0,y0,x1,y1));
+                Double max_x = x0 > x1 ? x0 : x1;
+                Double max_y = y0 > y1 ? y0 : y1;
+                if(max_x > windowMinWidth) {
+                    windowMinWidth = max_x;
+                    mainStage.setMinWidth(windowMinWidth);
+                }
+                if(max_y > windowMinHeight - Config.WINDOW_HEIGHT_DELTA - Config.ICONS_HEIGHT) {
+                    windowMinHeight = max_y + Config.ICONS_HEIGHT + Config.WINDOW_HEIGHT_DELTA;
+                    mainStage.setMinHeight(windowMinHeight);
+                }
             }
         });
 
