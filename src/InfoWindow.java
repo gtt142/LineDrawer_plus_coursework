@@ -14,14 +14,18 @@ public class InfoWindow {
     public static void display() {
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);
-        window.setTitle("Information");
+        window.setTitle("Информация");
         window.setMinWidth(200);
         window.setMinHeight(400);
 
-        Label label = new Label("Information");
+        Label label = new Label("Информация (F1)");
         label.setFont(Font.font(24));
-        Text text = new Text("* Draw line by mouse\n\n" +
-                "* For remove a line use the right mouse button");
+        Text text = new Text("* Для рисования отрезка используйте левую кнопку мыши.\n\n" +
+                "* Для удаления отрезка поднесите к ней курсор и нажмите на ПКМ.\n\n" +
+                "* Нажмите кнопку \"Очистить все\" (кисточка), чтобы очистить все.\n\n" +
+                "* Нажмите кнопку \"Решить\"(калькулятор), чтобы решить задачу.\n\n" +
+                "* Для сохранения файла с отрезками нажмите \"Сохранить\"(диск).\n\n" +
+                "* Для открытия сохраненного файла нажмите \"Открыть\"(папка с файлом).");
         text.setFont(Font.font(16));
 
         VBox vBox = new VBox(20);

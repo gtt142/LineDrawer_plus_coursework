@@ -3,6 +3,7 @@ import java.util.List;
 public class Task {
     private Lines lines;
     private Integer[][] adjacencyMatrix;
+    private Boolean[] deletedLines = null;
 
     public Task() {
     }
@@ -29,6 +30,10 @@ public class Task {
         }
     }
 
+    public Boolean[] getDeletedLines() {
+        return deletedLines;
+    }
+
     public Integer solve() {
         fillAdjacencyMatrix();
         return solveWithGreedyAlgorithm();
@@ -40,6 +45,11 @@ public class Task {
         Integer maxGlobal;
         int maxIndex = 0;
         Integer[][] adjacencyMatrixCopy;
+
+        deletedLines = new Boolean[linesCount];
+        for (int i = 0; i < linesCount; i++) {
+            deletedLines[i] = false;
+        }
 
         adjacencyMatrixCopy = new Integer[linesCount][linesCount];
         for (int i = 0; i < linesCount; i++) {
@@ -74,6 +84,7 @@ public class Task {
                 for (int j = 0; j < linesCount; j++) {
                     if (adjacencyMatrixCopy[maxIndex][j].equals(1)) {
                         result--;
+                        deletedLines[j] = true;
                         for (int k = 0; k < linesCount; k++) {
                             adjacencyMatrixCopy[j][k] = 0;
                             adjacencyMatrixCopy[k][j] = 0;

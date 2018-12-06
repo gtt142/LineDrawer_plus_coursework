@@ -1,13 +1,14 @@
 import javafx.scene.paint.Color;
 
 public class Config {
-    public static final Double LINEWIDTH = 3.0;
-    public static final Double DRAWING_LINEWIDTH = 3.0;
+    public static Double LINEWIDTH = 3.0;
+    public static Double DRAWING_LINEWIDTH = 3.0;
 
-    public static final Color LINE_COLOR = Color.BLUE;
-    public static final Color HOVER_LINE_COLOR = Color.RED;
-    public static final Color DRAWING_LINE_COLOR = Color.GREEN;
-    public static final Color INTERSECTION_COLOR = Color.CHOCOLATE;
+    public static Color LINE_COLOR = Color.BLUE;
+    public static Color HOVER_LINE_COLOR = Color.RED;
+    public static Color DRAWING_LINE_COLOR = Color.GREEN;
+    public static Color INTERSECTION_COLOR = Color.CHOCOLATE;
+    public static Color SOLUTION_LINE_COLOR = Color.RED;
 
     public static final Double ICONS_HEIGHT = 40.0;
     public static final Double CANVAS_WIDTH = 1000.0;
@@ -15,7 +16,7 @@ public class Config {
     public static final Double MAX_DELTA_FOR_LINE_DELETE = 5.0;
 
 
-    public static final String MAIN_WINDOW_NAME = "Line drawer v0.9";
+    public static final String MAIN_WINDOW_NAME = "Line drawer v0.9.1";
     public static final Double WINDOW_MIN_WIDTH = 800.0;
     public static final Double WINDOW_MIN_HEIGHT = 600.0;
     public static final Double WINDOW_HEIGHT_DELTA = 20.0;

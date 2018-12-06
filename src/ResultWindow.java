@@ -13,11 +13,11 @@ public class ResultWindow {
 
     public void init() {
         window.initModality(Modality.APPLICATION_MODAL);
-        window.setTitle("Result");
+        window.setTitle("Результат");
         VBox vBox = new VBox(20);
         Text text = new Text("");
 
-        text.setText("Wait solving...");
+        text.setText("Подождите...");
         text.setFont(Font.font(20));
 
         vBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null )));
@@ -31,7 +31,7 @@ public class ResultWindow {
     public void setResult(Integer result) {
         VBox vBox = new VBox(20);
         Text text = new Text("");
-        text.setText("Result: "+result.toString());
+        text.setText("Результат: "+result.toString());
         text.setFont(Font.font(20));
         vBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null )));
         vBox.getChildren().add(text);

@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Objects;
 
 
@@ -31,6 +32,7 @@ public class Drawer extends Application {
     private Stage mainStage;
     private Double defaultCanvasWidth = Config.WINDOW_MIN_WIDTH;
     private Double defaultCanvasHeight = Config.WINDOW_MIN_HEIGHT - Config.ICONS_HEIGHT - Config.WINDOW_HEIGHT_DELTA;
+    private Canvas mainCanvas;
 
     private Double x0 = 0.0;
     private Double y0 = 0.0;
@@ -105,6 +107,11 @@ public class Drawer extends Application {
     private ImageView buttonSolveView = new ImageView(image5);
 
     public static void main(String[] args) {
+        try {
+            ConfigFromFile.readConfig();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         launch(args);
     }
 
@@ -118,6 +125,7 @@ public class Drawer extends Application {
         Double canvasHeight = defaultCanvasHeight;
         Canvas canvas = new Canvas(canvasWidth, canvasHeight);
         Canvas draftCanvas = new Canvas(canvasWidth, canvasHeight);
+        mainCanvas = canvas;
 
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("MyFormat", "*.mf"),
@@ -240,14 +248,33 @@ public class Drawer extends Application {
             public void run() {
                 Task task = new Task(lines);
                 Integer result = task.solve();
+                Boolean[] deletedLines = task.getDeletedLines();
                 Platform.runLater(() -> {
                     resultWindow.setResult(result);
+                    drawSolutionLines(deletedLines);
+
                 });
             }
 
         });
 
         taskThread.start();
+    }
+
+    private void drawSolutionLines(Boolean[] deletedLine) {
+        GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+        gc.clearRect(0,0, mainCanvas.getWidth(), mainCanvas.getHeight());
+//        lines.drawLinesOnCanvas(mainCanvas);
+
+        int counter = 0;
+        for (Line line: lines.getLines()) {
+            if (!deletedLine[counter]) {
+                gc.setStroke(Config.SOLUTION_LINE_COLOR);
+                gc.setLineWidth(Config.LINEWIDTH);
+                gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
+            }
+            counter++;
+        }
     }
 
     private void resizeOnOpenFile(Canvas canvas, Canvas draftCanvas) {
@@ -273,7 +300,7 @@ public class Drawer extends Application {
 
         if(maxY > windowMinHeight - Config.WINDOW_HEIGHT_DELTA - Config.ICONS_HEIGHT) {
             windowMinHeight = maxY + Config.ICONS_HEIGHT + Config.WINDOW_HEIGHT_DELTA;
-            mainStage.setMinHeight(windowMinHeight);
+            mainStage.setMinHeight(windowMinHeight+Config.WINDOW_HEIGHT_DELTA);
         }
     }
 
