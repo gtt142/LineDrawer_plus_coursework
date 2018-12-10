@@ -22,7 +22,7 @@ public class Lines {
     }
 
     public Lines(File file) throws Exception {
-        lines = new ArrayList<Line>();
+        lines = new ArrayList<>();
         try {
             Scanner sc = new Scanner(file);
             while (sc.hasNext()) {
@@ -37,6 +37,7 @@ public class Lines {
                     throw new Exception("Incorrect file format");
                 }
                 strSc.close();
+                if (!coords[0].equals(coords[2]) || !coords[1].equals(coords[3]))
                 lines.add(new Line(coords[0], coords[1], coords[2], coords[3]));
             }
             sc.close();

@@ -249,10 +249,18 @@ public class Drawer extends Application {
                 Task task = new Task(lines);
                 Integer result = task.solve();
                 Boolean[] deletedLines = task.getDeletedLines();
+                Lines resultLines = new Lines();
+                int counter = 0;
+                for (Line line: lines.getLines()) {
+                    if (!deletedLines[counter]) {
+                        resultLines.getLines().add(line);
+                    }
+                    counter++;
+                }
+                resultWindow.setResultLines(resultLines);
                 Platform.runLater(() -> {
                     resultWindow.setResult(result);
                     drawSolutionLines(deletedLines);
-
                 });
             }
 
@@ -261,14 +269,25 @@ public class Drawer extends Application {
         taskThread.start();
     }
 
-    private void drawSolutionLines(Boolean[] deletedLine) {
+    private void drawSolutionLines(Lines lines) {
+        GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+        gc.clearRect(0,0, mainCanvas.getWidth(), mainCanvas.getHeight());
+
+        for (Line line: lines.getLines()) {
+            gc.setStroke(Config.SOLUTION_LINE_COLOR);
+            gc.setLineWidth(Config.LINEWIDTH);
+            gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
+        }
+    }
+
+    private void drawSolutionLines(Boolean[] deletedLines) {
         GraphicsContext gc = mainCanvas.getGraphicsContext2D();
         gc.clearRect(0,0, mainCanvas.getWidth(), mainCanvas.getHeight());
 //        lines.drawLinesOnCanvas(mainCanvas);
 
         int counter = 0;
         for (Line line: lines.getLines()) {
-            if (!deletedLine[counter]) {
+            if (!deletedLines[counter]) {
                 gc.setStroke(Config.SOLUTION_LINE_COLOR);
                 gc.setLineWidth(Config.LINEWIDTH);
                 gc.strokeLine(line.getX0(), line.getY0(), line.getX1(), line.getY1());
@@ -352,21 +371,25 @@ public class Drawer extends Application {
         });
 
         draftCanvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+            x1 = event.getX();
+            y1 = event.getY();
             if(event.getButton() == MouseButton.PRIMARY) {
-                gc.setStroke(Config.LINE_COLOR);
-                gc.setLineWidth(Config.LINEWIDTH);
-                gc.strokeLine(x0,y0,x1,y1);
                 gc2.clearRect(0, 0, draftCanvas.getWidth(), draftCanvas.getHeight());
-                lines.addLine(new Line(x0,y0,x1,y1));
-                Double max_x = x0 > x1 ? x0 : x1;
-                Double max_y = y0 > y1 ? y0 : y1;
-                if(max_x > windowMinWidth) {
-                    windowMinWidth = max_x;
-                    mainStage.setMinWidth(windowMinWidth);
-                }
-                if(max_y > windowMinHeight - Config.WINDOW_HEIGHT_DELTA - Config.ICONS_HEIGHT) {
-                    windowMinHeight = max_y + Config.ICONS_HEIGHT + Config.WINDOW_HEIGHT_DELTA;
-                    mainStage.setMinHeight(windowMinHeight);
+                if (!x0.equals(x1) || !y0.equals(y1)) {
+                    gc.setStroke(Config.LINE_COLOR);
+                    gc.setLineWidth(Config.LINEWIDTH);
+                    gc.strokeLine(x0, y0, x1, y1);
+                    lines.addLine(new Line(x0, y0, x1, y1));
+                    Double max_x = x0 > x1 ? x0 : x1;
+                    Double max_y = y0 > y1 ? y0 : y1;
+                    if (max_x > windowMinWidth) {
+                        windowMinWidth = max_x;
+                        mainStage.setMinWidth(windowMinWidth);
+                    }
+                    if (max_y > windowMinHeight - Config.WINDOW_HEIGHT_DELTA - Config.ICONS_HEIGHT) {
+                        windowMinHeight = max_y + Config.ICONS_HEIGHT + Config.WINDOW_HEIGHT_DELTA;
+                        mainStage.setMinHeight(windowMinHeight);
+                    }
                 }
             }
         });
