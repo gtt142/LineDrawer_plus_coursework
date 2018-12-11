@@ -16,7 +16,7 @@ public class Config {
     public static final Double MAX_DELTA_FOR_LINE_DELETE = 5.0;
 
 
-    public static final String MAIN_WINDOW_NAME = "Line drawer v0.9.2";
+    public static final String MAIN_WINDOW_NAME = "Line drawer v0.9.2.1";
     public static final Double WINDOW_MIN_WIDTH = 800.0;
     public static final Double WINDOW_MIN_HEIGHT = 600.0;
     public static final Double WINDOW_HEIGHT_DELTA = 20.0;

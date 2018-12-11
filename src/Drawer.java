@@ -394,6 +394,10 @@ public class Drawer extends Application {
             }
         });
 
+        draftCanvas.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
+            lines.drawLinesOnCanvas(canvas);
+        });
+
         draftCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, event -> {
             Line line = lines.findNearLineByCoordinate(event.getX(), event.getY());
             if (hoveredLine) {
